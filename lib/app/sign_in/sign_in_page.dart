@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:time_tracker_flutter_course/app/sign_in/email_sign_in_page.dart';
 import 'package:time_tracker_flutter_course/app/sign_in/sign_in_button.dart';
 import 'package:time_tracker_flutter_course/app/sign_in/social_sign_in_button.dart';
 import 'package:time_tracker_flutter_course/services/auth.dart';
@@ -31,6 +32,12 @@ class SignInPage extends StatelessWidget {
     }
   }
 
+  void _signInWithEmail(BuildContext context){
+      Navigator.of(context).push(
+        MaterialPageRoute<void>(fullscreenDialog: true, builder: (context)=>EmailSignInPage(auth: auth,),)
+      );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -38,12 +45,12 @@ class SignInPage extends StatelessWidget {
         title: Text('Time Tracker'),
         elevation: 2.0,
       ),
-      body: buildContainer(),
+      body: buildContainer(context),
       backgroundColor: Colors.grey[200],
     );
   }
 
-  Widget buildContainer() {
+  Widget buildContainer(BuildContext context) {
     return Padding(
       padding: EdgeInsets.all(16.0),
       //color: Colors.yellow,
@@ -85,7 +92,7 @@ class SignInPage extends StatelessWidget {
           SizedBox(height: 5.0),
           SignInButton(
             text: 'Sign in with Email',
-            onPressed: () {},
+            onPressed: ()=>{_signInWithEmail(context)},
             colorBackgroud: Color(0xFF00796B),
             textColor: Colors.black87,
           ),
