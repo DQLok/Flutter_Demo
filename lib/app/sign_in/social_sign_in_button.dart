@@ -7,7 +7,7 @@ class SocialSignInButton extends CustomElevatedButton {
     required String text,
     required Color colorBackgroud,
     required Color textColor,
-    required VoidCallback onPressed,
+    required VoidCallback? onPressed,
   })  : assert(text != null),//dừng thực thi nếu đk false
         super(
             child: Row(
