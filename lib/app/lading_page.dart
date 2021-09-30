@@ -38,7 +38,7 @@ class LadingPage extends StatelessWidget {
           if (snapshot.connectionState == ConnectionState.active) {
             final User? user = snapshot.data;
             if (user == null) {
-              return SignInPage();
+              return SignInPage.create(context);
             }
             return HomePage();
           }
