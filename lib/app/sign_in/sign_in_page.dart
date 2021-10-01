@@ -3,22 +3,27 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:time_tracker_flutter_course/app/sign_in/email_sign_in_page.dart';
-import 'package:time_tracker_flutter_course/app/sign_in/sign_in_bloc.dart';
+import 'package:time_tracker_flutter_course/app/sign_in/sign_in_manager.dart';
 import 'package:time_tracker_flutter_course/app/sign_in/sign_in_button.dart';
 import 'package:time_tracker_flutter_course/app/sign_in/social_sign_in_button.dart';
 import 'package:time_tracker_flutter_course/common_widgets/show_exception_dialog.dart';
 import 'package:time_tracker_flutter_course/services/auth.dart';
 
 class SignInPage extends StatelessWidget {
-  const SignInPage({Key? key, required this.bloc}) : super(key: key);
-  final SignInBloc bloc;
-  static Widget create(BuildContext context) {  
-    final auth=Provider.of<AuthBase>(context,listen: false);
-    return Provider<SignInBloc>(
-        create: (_) => SignInBloc(auth: auth),//not auth null
-        dispose: (_,bloc)=>bloc.dispose(),
-        child: Consumer<SignInBloc>(
-            builder: (_, bloc, __) => SignInPage(bloc: bloc)));
+  const SignInPage({Key? key, required this.manager,required this.isLoading}) : super(key: key);
+  final SignInManager manager;
+  final bool isLoading;
+
+  static Widget create(BuildContext context) {
+    final auth = Provider.of<AuthBase>(context, listen: false);
+    return ChangeNotifierProvider<ValueNotifier<bool>>(
+        create: (_) => ValueNotifier<bool>(false),
+        child: Consumer<ValueNotifier<bool>>(
+            builder: (_, isLoading, __) => Provider<SignInManager>(
+                create: (_) => SignInManager(
+                    auth: auth, isLoading: isLoading), //not auth null
+                child: Consumer<SignInManager>(
+                    builder: (_, manager, __) => SignInPage(manager: manager,isLoading: isLoading.value,)))));
   }
 
   void _showSignInError(BuildContext context, Exception exception) {
@@ -32,7 +37,7 @@ class SignInPage extends StatelessWidget {
     //final bloc=Provider.of<SignInBloc>(context,listen: false);
     try {
       //final auth = Provider.of<AuthBase>(context, listen: false);
-      await bloc.signInAnonymously();
+      await manager.signInAnonymously();
     } on Exception catch (e) {
       _showSignInError(context, e);
     }
@@ -40,7 +45,7 @@ class SignInPage extends StatelessWidget {
 
   Future<void> _signInWithGoogle(BuildContext context) async {
     try {
-      await bloc.signInWithGoogle();
+      await manager.signInWithGoogle();
     } on Exception catch (e) {
       _showSignInError(context, e);
     }
@@ -48,7 +53,7 @@ class SignInPage extends StatelessWidget {
 
   Future<void> _signInWithFacebook(BuildContext context) async {
     try {
-      await bloc.signInWithFacebook();
+      await manager.signInWithFacebook();
     } on Exception catch (e) {
       _showSignInError(context, e);
     }
@@ -68,19 +73,12 @@ class SignInPage extends StatelessWidget {
         title: Text('Time Tracker'),
         elevation: 2.0,
       ),
-      body: StreamBuilder<bool>(
-        stream: bloc.isLoadingStream,
-        initialData: false,
-        builder: (context, AsyncSnapshot) {
-          //snapshot
-          return buildContainer(context, AsyncSnapshot.data!);
-        },
-      ),
+      body: buildContainer(context),
       backgroundColor: Colors.grey[200],
     );
   }
 
-  Widget buildContainer(BuildContext context, bool isLoading) {
+  Widget buildContainer(BuildContext context) {
     return Padding(
       padding: EdgeInsets.all(16.0),
       //color: Colors.yellow,
@@ -90,7 +88,7 @@ class SignInPage extends StatelessWidget {
         //căng ngang
         crossAxisAlignment: CrossAxisAlignment.stretch, //chi phối phần width
         children: <Widget>[
-          SizedBox(height: 50.0, child: _buildHeader(isLoading)),
+          SizedBox(height: 50.0, child: _buildHeader()),
           SizedBox(height: 30.0),
           SocialSignInButton(
               assetName: 'image/google.png',
@@ -137,7 +135,7 @@ class SignInPage extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader(bool isLoading) {
+  Widget _buildHeader() {
     if (isLoading) {
       return Center(
         child: CircularProgressIndicator(),
