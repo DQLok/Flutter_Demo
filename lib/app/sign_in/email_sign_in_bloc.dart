@@ -16,7 +16,7 @@ EmailSignInModel _model=EmailSignInModel();
   }
 
   Future<void> submit() async {
-    updateWith(submited: true,isLoading: true);
+    updateWith(submitted: true,isLoading: true);
     try {
       //await Future.delayed(Duration(seconds: 3));
       if (_model.formType == emailSignInFormType.signIn) {
@@ -37,7 +37,7 @@ EmailSignInModel _model=EmailSignInModel();
       password:'',      
       formType: formType,
       isLoading: false,
-      submited: false,
+      submitted: false,
     );
   }
 
@@ -46,8 +46,8 @@ EmailSignInModel _model=EmailSignInModel();
   void updatePassword(String password)=>updateWith(password: password);
 
   void updateWith({
-    String? email,String? password,emailSignInFormType? formType, bool? isLoading,bool? submited}){
-        _model=_model.coppyWith(email: email,password: password,formType: formType,isLoading: isLoading,submitted: submited);
+    String? email,String? password,emailSignInFormType? formType, bool? isLoading,bool? submitted}){
+        _model=_model.coppyWith(email: email,password: password,formType: formType,isLoading: isLoading,submitted: submitted);
         _modelController.add(_model);
     }
 }
