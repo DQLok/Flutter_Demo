@@ -3,77 +3,62 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:time_tracker_flutter_course/app/sign_in/email_sign_in_page.dart';
+import 'package:time_tracker_flutter_course/app/sign_in/sign_in_bloc.dart';
 import 'package:time_tracker_flutter_course/app/sign_in/sign_in_button.dart';
 import 'package:time_tracker_flutter_course/app/sign_in/social_sign_in_button.dart';
 import 'package:time_tracker_flutter_course/common_widgets/show_exception_dialog.dart';
 import 'package:time_tracker_flutter_course/services/auth.dart';
 
-class SignInPage extends StatefulWidget {
-
-  @override
-  _SignInPageState createState() => _SignInPageState();
-}
-
-class _SignInPageState extends State<SignInPage> {
-  bool _isLoading=false;
-
-  void _showSignInError(BuildContext context,Exception exception){
-    if (exception is FirebaseAuthException && exception.code=='ERROR_ABORTED_BY_USER') return;
-    showExceptionAlertDialog(context, title: 'Sign in failed', exception: exception);
+class SignInPage extends StatelessWidget {
+  const SignInPage({Key? key, required this.bloc}) : super(key: key);
+  final SignInBloc bloc;
+  static Widget create(BuildContext context) {  
+    final auth=Provider.of<AuthBase>(context,listen: false);
+    return Provider<SignInBloc>(
+        create: (_) => SignInBloc(auth: auth),//not auth null
+        dispose: (_,bloc)=>bloc.dispose(),
+        child: Consumer<SignInBloc>(
+            builder: (_, bloc, __) => SignInPage(bloc: bloc)));
   }
 
-  Future<void>  _signInAnonymously(BuildContext context) async{        
-    try{
-      setState(()=> {
-        _isLoading=true
-      });
-      final auth=Provider.of<AuthBase>(context,listen: false);
-     await auth.signInAnonymously();
-    }on Exception catch(e){
-     _showSignInError(context, e);
-    }finally{
-      setState(() =>{
-        _isLoading=false
-      });
+  void _showSignInError(BuildContext context, Exception exception) {
+    if (exception is FirebaseAuthException &&
+        exception.code == 'ERROR_ABORTED_BY_USER') return;
+    showExceptionAlertDialog(context,
+        title: 'Sign in failed', exception: exception);
+  }
+
+  Future<void> _signInAnonymously(BuildContext context) async {
+    //final bloc=Provider.of<SignInBloc>(context,listen: false);
+    try {
+      //final auth = Provider.of<AuthBase>(context, listen: false);
+      await bloc.signInAnonymously();
+    } on Exception catch (e) {
+      _showSignInError(context, e);
     }
   }
 
-  Future<void>  _signInWithGoogle(BuildContext context) async{    
-    try{
-      setState(()=> {
-        _isLoading=true
-      });
-      final auth=Provider.of<AuthBase>(context,listen: false);
-     await auth.signInWithGoogle();
-    }on Exception catch(e){
-     _showSignInError(context, e);
-    }finally{
-      setState(() =>{
-        _isLoading=false
-      });
+  Future<void> _signInWithGoogle(BuildContext context) async {
+    try {
+      await bloc.signInWithGoogle();
+    } on Exception catch (e) {
+      _showSignInError(context, e);
     }
   }
 
-  Future<void>  _signInWithFacebook(BuildContext context) async{    
-    try{
-      setState(()=> {
-        _isLoading=true
-      });
-      final auth=Provider.of<AuthBase>(context,listen: false);
-     await auth.signInWithFacebook();
-   }on Exception catch(e){
-     _showSignInError(context, e);
-    }finally{
-      setState(() =>{
-        _isLoading=false
-      });
+  Future<void> _signInWithFacebook(BuildContext context) async {
+    try {
+      await bloc.signInWithFacebook();
+    } on Exception catch (e) {
+      _showSignInError(context, e);
     }
   }
 
-  void _signInWithEmail(BuildContext context){
-      Navigator.of(context).push(
-        MaterialPageRoute<void>(fullscreenDialog: true, builder: (context)=>EmailSignInPage(),)
-      );
+  void _signInWithEmail(BuildContext context) {
+    Navigator.of(context).push(MaterialPageRoute<void>(
+      fullscreenDialog: true,
+      builder: (context) => EmailSignInPage(),
+    ));
   }
 
   @override
@@ -83,12 +68,19 @@ class _SignInPageState extends State<SignInPage> {
         title: Text('Time Tracker'),
         elevation: 2.0,
       ),
-      body: buildContainer(context),
+      body: StreamBuilder<bool>(
+        stream: bloc.isLoadingStream,
+        initialData: false,
+        builder: (context, AsyncSnapshot) {
+          //snapshot
+          return buildContainer(context, AsyncSnapshot.data!);
+        },
+      ),
       backgroundColor: Colors.grey[200],
     );
   }
 
-  Widget buildContainer(BuildContext context) {
+  Widget buildContainer(BuildContext context, bool isLoading) {
     return Padding(
       padding: EdgeInsets.all(16.0),
       //color: Colors.yellow,
@@ -98,22 +90,21 @@ class _SignInPageState extends State<SignInPage> {
         //căng ngang
         crossAxisAlignment: CrossAxisAlignment.stretch, //chi phối phần width
         children: <Widget>[
-          SizedBox(height: 50.0,child:_buildHeader()),
+          SizedBox(height: 50.0, child: _buildHeader(isLoading)),
           SizedBox(height: 30.0),
           SocialSignInButton(
               assetName: 'image/google.png',
               text: 'Sign in with Google',
               colorBackgroud: Colors.white,
               textColor: Colors.black87,
-              onPressed: _isLoading ? null :   ()=>_signInWithGoogle(context)
-              ),
+              onPressed: isLoading ? null : () => _signInWithGoogle(context)),
           SizedBox(height: 5.0),
           SocialSignInButton(
               assetName: 'image/facebook.png',
               text: 'Sign in with Facebook',
               colorBackgroud: Colors.blue.shade700,
               textColor: Colors.black87,
-              onPressed: _isLoading ? null :  ()=>_signInWithFacebook(context)),
+              onPressed: isLoading ? null : () => _signInWithFacebook(context)),
           SizedBox(height: 5.0),
           SocialSignInButton(
               assetName: 'image/instagram.png',
@@ -124,7 +115,7 @@ class _SignInPageState extends State<SignInPage> {
           SizedBox(height: 5.0),
           SignInButton(
             text: 'Sign in with Email',
-            onPressed: _isLoading ? null :()=>_signInWithEmail(context),
+            onPressed: isLoading ? null : () => _signInWithEmail(context),
             colorBackgroud: Color(0xFF00796B),
             textColor: Colors.black87,
           ),
@@ -137,7 +128,7 @@ class _SignInPageState extends State<SignInPage> {
           SizedBox(height: 5.0),
           SignInButton(
             text: 'Go anonymous',
-            onPressed: _isLoading ? null : ()=>_signInAnonymously(context),
+            onPressed: isLoading ? null : () => _signInAnonymously(context),
             colorBackgroud: Colors.lime,
             textColor: Colors.black,
           )
@@ -146,18 +137,19 @@ class _SignInPageState extends State<SignInPage> {
     );
   }
 
-  Widget _buildHeader(){
-    if(_isLoading){
-      return Center(child: CircularProgressIndicator(),
+  Widget _buildHeader(bool isLoading) {
+    if (isLoading) {
+      return Center(
+        child: CircularProgressIndicator(),
       );
     }
-    return  Text(
-            'Sign in',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 32.0,
-              fontWeight: FontWeight.w600,
-            ),
-          );
+    return Text(
+      'Sign in',
+      textAlign: TextAlign.center,
+      style: TextStyle(
+        fontSize: 32.0,
+        fontWeight: FontWeight.w600,
+      ),
+    );
   }
 }
