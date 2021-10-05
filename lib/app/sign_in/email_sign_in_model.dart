@@ -16,38 +16,45 @@ class EmailSignInModel with EmailAndPAsswordValidators {
   final bool isLoading;
   final bool submitted;
 
-  String get primaryButtonText{
-     return formType == emailSignInFormType.signIn
+  String get primaryButtonText {
+    return formType == emailSignInFormType.signIn
         ? 'sign in'
         : 'Create an account';
   }
 
-  String get secondaryButtonText{
+  String get secondaryButtonText {
     return formType == emailSignInFormType.signIn
         ? 'Need an account? Register'
         : 'Have an account? Sign in';
   }
 
-  bool get canSubmit{
-    return  emailValidator.isValid(email) &&
+  bool get canSubmit {
+    return emailValidator.isValid(email) &&
         passwordValidator.isValid(password) &&
         !isLoading;
-
   }
 
-  String? get passwordErrorText{
-    bool showErrorText =
-        submitted && passwordValidator.isValid(password);
-        return showErrorText ? invalidEmailErrorText : null;
+  String? get passwordErrorText {
+    bool showErrorText = submitted && passwordValidator.isValid(password);
+    return showErrorText ? invalidEmailErrorText : null;
   }
 
-  String? get emailErrorText{
-        bool showErrorText = submitted && emailValidator.isValid(email);
-    return showErrorText ?invalidEmailErrorText :null;
+  String? get emailErrorText {
+    bool showErrorText = submitted && emailValidator.isValid(email);
+    return showErrorText ? invalidEmailErrorText : null;
   }
 
-  EmailSignInModel coppyWith({
-    String? email,String? password,emailSignInFormType? formType,bool? isLoading,bool? submitted}){
-      return EmailSignInModel(email: email ?? this.email,password: password??this.password,formType: formType??this.formType,isLoading: isLoading??this.isLoading,submitted: submitted??this.submitted);
-    }
+  EmailSignInModel coppyWith(
+      {String? email,
+      String? password,
+      emailSignInFormType? formType,
+      bool? isLoading,
+      bool? submitted}) {
+    return EmailSignInModel(
+        email: email ?? this.email,
+        password: password ?? this.password,
+        formType: formType ?? this.formType,
+        isLoading: isLoading ?? this.isLoading,
+        submitted: submitted ?? this.submitted);
+  }
 }

@@ -23,7 +23,7 @@ class EmailSignInChangeModel with EmailAndPAsswordValidators, ChangeNotifier {
     try {
       //await Future.delayed(Duration(seconds: 3));
       if (formType == emailSignInFormType.signIn) {
-        await auth.signInWithEmailAndPassword(email,password);
+        await auth.signInWithEmailAndPassword(email,password);        
       } else {
         await auth.createUserWithEmailAndPassword(email,password);
       }
