@@ -8,11 +8,10 @@ import 'package:time_tracker_flutter_course/services/database.dart';
 
 class EditJobPage extends StatefulWidget {
   const EditJobPage({Key? key, required this.database,required this.job}) : super(key: key);
-  final Database database;
+  final Database? database;
   final Job? job;
 
-  static Future<void> show(BuildContext context,{Job? job}) async {
-    final database = Provider.of<Database>(context, listen: false);
+  static Future<void> show(BuildContext context,{Database? database,Job? job}) async {
     await Navigator.of(context).push(MaterialPageRoute(
         builder: (context) => EditJobPage(
               database: database,
@@ -52,8 +51,8 @@ class _EditJobPageState extends State<EditJobPage> {
   Future<void> _submit() async {
     if (_validateAndSaveForm()) {
       try {
-        final jobs = await widget.database.jobsStream().first;
-        final allNames = jobs.map((job) => job!.name).toList();
+        final jobs = await widget.database?.jobsStream().first;
+        final allNames = jobs!.map((job) => job.name).toList();
         if (widget.job!=null){
           allNames.remove(widget.job!.name);
         }
@@ -63,9 +62,9 @@ class _EditJobPageState extends State<EditJobPage> {
               content: 'Please choose a different job name',
               defaultActionText: 'Ok');
         } else {
-          final id=widget.job?.id ?? documentIDFormCurrenDate();
+          final id=widget.job?.id ?? documentIdFromCurrentDate();
           final job = Job(id: id,name: _name!, ratePerHour: _ratePerHour!);
-          await widget.database.setJob(job);
+          await widget.database?.setJob(job);
           Navigator.of(context).pop();
         }
       } on FirebaseException catch (e) {

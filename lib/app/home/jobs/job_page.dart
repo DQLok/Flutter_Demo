@@ -1,8 +1,7 @@
-
-
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:time_tracker_flutter_course/app/home/job_entries/job_entries_page.dart';
 import 'package:time_tracker_flutter_course/app/home/jobs/edit_job_page.dart';
 import 'package:time_tracker_flutter_course/app/home/jobs/empty_content.dart';
 import 'package:time_tracker_flutter_course/app/home/jobs/job_list_tile.dart';
@@ -32,12 +31,13 @@ class JobsPage extends StatelessWidget {
     if (didRequestSignOut == true) _signOut(context);
   }
 
-  Future<void> _delete(BuildContext context,Job job) async{
-    try{
-      final database=Provider.of<Database>(context,listen: false);
+  Future<void> _delete(BuildContext context, Job job) async {
+    try {
+      final database = Provider.of<Database>(context, listen: false);
       await database.deleteJob(job);
-    }on FirebaseException catch(e){
-      showExceptionAlertDialog(context, title: 'Operation failed', exception: e);
+    } on FirebaseException catch (e) {
+      showExceptionAlertDialog(context,
+          title: 'Operation failed', exception: e);
     }
   }
 
@@ -59,7 +59,8 @@ class JobsPage extends StatelessWidget {
       body: _buildContents(context),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
-        onPressed: () => EditJobPage.show(context, job: null),
+        onPressed: () => EditJobPage.show(context,
+            job: null, database: Provider.of(context, listen: false)),
       ),
     );
   }
@@ -71,14 +72,16 @@ class JobsPage extends StatelessWidget {
         builder: (context, snapshot) {
           return ListItemsBuilder<Job?>(
               snapshot: snapshot,
-              itemBuilder: (context, job) => Dismissible( 
-                key: Key('job-${job?.id}'),
-                background: Container(color: Colors.red,),
-                direction: DismissDirection.endToStart,
-                onDismissed: (direction)=>_delete(context,job!),
-                child: JobListTile(
+              itemBuilder: (context, job) => Dismissible(
+                  key: Key('job-${job?.id}'),
+                  background: Container(
+                    color: Colors.red,
+                  ),
+                  direction: DismissDirection.endToStart,
+                  onDismissed: (direction) => _delete(context, job!),
+                  child: JobListTile(
                     job: job!,
-                    onTap: () => EditJobPage.show(context, job: job),
+                    onTap: () => JobEntriesPage.show(context, job),
                   )));
         });
   }
