@@ -21,7 +21,7 @@ class EntryPage extends StatefulWidget {
       Database? database,
       Job? job,
       Entry? entry}) async {
-    await Navigator.of(context!).push(
+    await Navigator.of(context!,rootNavigator: true).push(
       MaterialPageRoute(
         builder: (context) =>
             EntryPage(database: database, job: job, entry: entry),
