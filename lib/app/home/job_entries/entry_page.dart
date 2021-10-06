@@ -87,6 +87,7 @@ class _EntryPageState extends State<EntryPage> {
       appBar: AppBar(
         elevation: 2.0,
         title: Text(widget.job!.name),
+        centerTitle: true,
         actions: <Widget>[
           TextButton(
             child: Text(
