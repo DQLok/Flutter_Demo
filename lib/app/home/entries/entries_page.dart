@@ -19,6 +19,7 @@ class EntriesPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text('Entries'),
+        centerTitle: true,
         elevation: 2.0,
       ),
       body: _buildContents(context),

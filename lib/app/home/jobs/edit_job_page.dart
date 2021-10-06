@@ -80,6 +80,7 @@ class _EditJobPageState extends State<EditJobPage> {
       appBar: AppBar(
         elevation: 2.0,
         title: Text(widget.job==null ? 'New Job':'Edit Job'),
+        centerTitle: true,
         actions: <Widget>[
           TextButton(
             child: Text('Save',
