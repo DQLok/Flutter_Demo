@@ -69,7 +69,7 @@ class FirestoreDatabase implements Database {
         path: APIPath.entries(uid),
         queryBuilder: job != null
             ? (query) => query.where('jobId', isEqualTo: job.id)
-            : null!,
+            : null,
         builder: (data, documentID) => Entry.fromMap(data, documentID),
         sort: (lhs, rhs) => rhs.start.compareTo(lhs.start),
       );

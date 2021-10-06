@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
+import 'package:time_tracker_flutter_course/app/home/entries/entries_page.dart';
 import 'package:time_tracker_flutter_course/app/home/job_entries/entry_list_item.dart';
 import 'package:time_tracker_flutter_course/app/home/job_entries/entry_page.dart';
 import 'package:time_tracker_flutter_course/app/home/jobs/edit_job_page.dart';
@@ -59,10 +60,10 @@ class JobEntriesPage extends StatelessWidget {
                       EditJobPage.show(context, database: database, job: job),
                 ),
                 IconButton(
-                  onPressed: () =>
-                      EditJobPage.show(context, database: database, job: job),
                   icon: Icon(Icons.add, color: Colors.white70),
-                )
+                  onPressed: () =>
+                      EntryPage.show(context: context,database: database,job: job),
+                  ),                
               ],
             ),
             body: _buildContent(context, job),

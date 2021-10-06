@@ -1,28 +1,32 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:rxdart/rxdart.dart';
 import 'package:time_tracker_flutter_course/app/sign_in/email_sign_in_model.dart';
 import 'package:time_tracker_flutter_course/services/auth.dart';
 
-class EmailSignInBloc{
+class EmailSignInBloc {
   EmailSignInBloc({required this.auth});
   final AuthBase auth;
-  final StreamController<EmailSignInModel> _modelController=StreamController<EmailSignInModel>();
-  Stream<EmailSignInModel> get modelStream => _modelController.stream;
+  final _modelSubject =
+      BehaviorSubject<EmailSignInModel>.seeded(EmailSignInModel());
 
-EmailSignInModel _model=EmailSignInModel();
-  void dispose(){
-    _modelController.close();
+  Stream<EmailSignInModel> get modelStream => _modelSubject.stream;
+
+  EmailSignInModel get _model => _modelSubject.value;
+  void dispose() {
+    _modelSubject.close();
   }
 
   Future<void> submit() async {
-    updateWith(submitted: true,isLoading: true);
+    updateWith(submitted: true, isLoading: true);
     try {
       //await Future.delayed(Duration(seconds: 3));
       if (_model.formType == emailSignInFormType.signIn) {
         await auth.signInWithEmailAndPassword(_model.email, _model.password);
       } else {
-        await auth.createUserWithEmailAndPassword(_model.email, _model.password);
+        await auth.createUserWithEmailAndPassword(
+            _model.email, _model.password);
       }
     } catch (e) {
       updateWith(isLoading: false);
@@ -30,24 +34,34 @@ EmailSignInModel _model=EmailSignInModel();
     }
   }
 
-  void toggeFormType(){
-    final formType=_model.formType==emailSignInFormType.signIn ? emailSignInFormType.register :emailSignInFormType.signIn;
-     updateWith(
+  void toggeFormType() {
+    final formType = _model.formType == emailSignInFormType.signIn
+        ? emailSignInFormType.register
+        : emailSignInFormType.signIn;
+    updateWith(
       email: '',
-      password:'',      
+      password: '',
       formType: formType,
       isLoading: false,
       submitted: false,
     );
   }
 
-  void updateEmail(String email) =>updateWith(email: email);
+  void updateEmail(String email) => updateWith(email: email);
 
-  void updatePassword(String password)=>updateWith(password: password);
+  void updatePassword(String password) => updateWith(password: password);
 
-  void updateWith({
-    String? email,String? password,emailSignInFormType? formType, bool? isLoading,bool? submitted}){
-        _model=_model.coppyWith(email: email,password: password,formType: formType,isLoading: isLoading,submitted: submitted);
-        _modelController.add(_model);
-    }
+  void updateWith(
+      {String? email,
+      String? password,
+      emailSignInFormType? formType,
+      bool? isLoading,
+      bool? submitted}) {
+    _modelSubject.value= _model.coppyWith(
+        email: email,
+        password: password,
+        formType: formType,
+        isLoading: isLoading,
+        submitted: submitted);
+  }
 }
