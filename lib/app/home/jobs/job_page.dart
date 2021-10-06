@@ -33,7 +33,7 @@ class JobsPage extends StatelessWidget {
         actions: <Widget>[
           IconButton(
               onPressed: () => EditJobPage.show(context,
-                  job: null, database: Provider.of(context, listen: false)),
+                  database: Provider.of<Database>(context, listen: false)),
               icon: Icon(
                 Icons.add,
                 color: Colors.white70,
@@ -46,20 +46,20 @@ class JobsPage extends StatelessWidget {
 
   Widget _buildContents(BuildContext context) {
     final database = Provider.of<Database>(context, listen: false);
-    return StreamBuilder<List<Job?>>(
+    return StreamBuilder<List<Job>>(
         stream: database.jobsStream(),
         builder: (context, snapshot) {
-          return ListItemsBuilder<Job?>(
+          return ListItemsBuilder<Job>(
               snapshot: snapshot,
               itemBuilder: (context, job) => Dismissible(
-                  key: Key('job-${job?.id}'),
+                  key: Key('job-${job.id}'),
                   background: Container(
                     color: Colors.red,
                   ),
                   direction: DismissDirection.endToStart,
-                  onDismissed: (direction) => _delete(context, job!),
+                  onDismissed: (direction) => _delete(context, job),
                   child: JobListTile(
-                    job: job!,
+                    job: job,
                     onTap: () => JobEntriesPage.show(context, job),
                   )));
         });
